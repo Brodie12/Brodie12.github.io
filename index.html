@@ -3,51 +3,122 @@
 
 <head>
     <title> Jim carrey article </title>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css">
+<script type="text/javascript" src="assets/js/paper.js"></script>
+<!-- Define inlined PaperScript associate it with myCanvas -->
+<script type="text/paperscript" canvas="myCanvas">
+var Ball = function(point, vector) {
+  if (!vector || vector.isZero()) {
+    this.vector = Point.random() * 5;
+  } else {
+    this.vector = vector * 2;
+  }
+  this.point = point;
+  this.dampen = 0.4;
+  this.gravity = 3;
+  this.bounce = -0.6;
+
+  var color = {
+    hue: Math.random() * 360,
+    saturation: 1,
+    brightness: 1
+  };
+  var gradient = new Gradient([color, 'black'], true);
+
+  var radius = this.radius = 50 * Math.random() + 30;
+  // Wrap CompoundPath in a Group, since CompoundPaths directly 
+  // applies the transformations to the content, just like Path.
+  var ball = new CompoundPath({
+    children: [
+      new Path.Circle({
+        radius: radius
+      }),
+      new Path.Circle({
+        center: radius / 8,
+        radius: radius / 3
+      })
+    ],
+    fillColor: new Color(gradient, 0, radius, radius / 8),
+  });
+
+  this.item = new Group({
+    children: [ball],
+    transformContent: false,
+    position: this.point
+  });
+}
+
+Ball.prototype.iterate = function() {
+  var size = view.size;
+  this.vector.y += this.gravity;
+  this.vector.x *= 0.99;
+  var pre = this.point + this.vector;
+  if (pre.x < this.radius || pre.x > size.width - this.radius)
+    this.vector.x *= -this.dampen;
+  if (pre.y < this.radius || pre.y > size.height - this.radius) {
+    if (Math.abs(this.vector.x) < 3)
+      this.vector = Point.random() * [150, 100] + [-75, 20];
+    this.vector.y *= this.bounce;
+  }
+
+  var max = Point.max(this.radius, this.point + this.vector);
+  this.item.position = this.point = Point.min(max, size - this.radius);
+  this.item.rotate(this.vector.x);
+};
+
+
+var balls = [];
+for (var i = 0; i < 10; i++) {
+  var position = Point.random() * view.size,
+    vector = (Point.random() - [0.5, 0]) * [50, 100],
+    ball = new Ball(position, vector);
+  balls.push(ball);
+}
+
+var textItem = new PointText({
+  point: [20, 30],
+  fillColor: 'black',
+});
+
+var lastDelta;
+function onMouseDrag(event) {
+  lastDelta = event.delta;
+}
+
+function onMouseUp(event) {
+  var ball = new Ball(event.point, lastDelta);
+  balls.push(ball);
+  lastDelta = null;
+}
+
+function onFrame() {
+  for (var i = 0, l = balls.length; i < l; i++)
+    balls[i].iterate();
+}
+
+
+</script>
 </head>
 
 <body bgcolor="95a5a6">
-   <hr color="9b59b6">
-   <H1 align="center"> Jim carrey</h1>
-   <hr color="9b59b6">
-   <h3> Jim carrey is a canadian actor, comedian, screenwriter, and producer he is known for his highly energetic performances. Jim carrey was born in 1962, and earned two golden globes during his career. Jim Carrey has been in a leading role in many movies like Ace ventura pet detective, the mask, and dump and dumber.
-   <br>
-   <br>
-    <iframe width="300" height="200" src="https://www.youtube.com/embed/kogDkXSI_rY" frameborder="0" allowfullscreen></iframe>
-   <br>
-    <a href="http://www.imdb.com/name/nm0000120/bio?ref_=nm_ov_bio_sm" target="_blank"> <button> This is a link to his biography! </button> </a>
-    <hr color="9b59b6"
-  <p> Movies he's been in.
-  <ul>
-    <li>The Mask</li>
-    <li>Dumb and Dumber</li>
-    <li>Ace Ventura: Pet Detective</li>
-    <li>Brucie Almighty</li>
-    <li>The grinch</li>
-  </ul>   
-   <p> E.T.C </p>
- <table border="10">
 
-   <tr>
-     <th>Movie</th>
-     <th>Person he starred in</th>
-   </tr>
+   <ul class="navbar">
+     <li class="navitem"><a href="page.html">background</a></li>
+     <li class="navitem"><a href="page2.html">hobbies</a></li>
+   </ul>
 
-   <tr>
-     <td>How the grinch stole christmas</td>
-     <td>The Grinch</td>
-   </tr>
 
-   <tr>
-     <td>Dumb and Dumber</td>
-     <td>Lloyd Christmas</td>
-   </tr>
+<div id="homepage">
+<canvas id="myCanvas" width="3000px" height="3000px"></canvas>
+</div>
 
-  <tr>
-     <td>The mask</td>
-     <td>Stanley Ipkiss</td>
-  </tr>
-  </table>
-<a href="page.html">click here to go to another page.</a>
-<a href="page2.html">click here to go to another website</a>
+ <div id="text" align="center">  
+<h1 id="title"> Ryan Carey</h1>
+<h2>Golfer, Coder, Gamer</h2>
+</div>
+<img id="image" src="2016-06-22-150147.jpg" height="50%" width="50%" style="margin:auto;display:block;">
+
+
+   
 </body>
 </html>
